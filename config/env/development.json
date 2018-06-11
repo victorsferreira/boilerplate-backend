@@ -1,0 +1,10 @@
+{
+    "name": "app-backend",
+    "port": 8090,
+    "db": {
+        "host": "localhost",
+        "port": 27017,
+        "name": "app-backend"
+    },
+    "log": {}
+}
