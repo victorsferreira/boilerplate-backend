@@ -9,8 +9,8 @@ class AccountController extends BaseController {
         });
     }
 
-    teste(req, res, next) {
-        res.json('Teste');
+    index(req, res, next) {
+        res.status(200).json({message: 'success'});
         return next();
     }
 }
