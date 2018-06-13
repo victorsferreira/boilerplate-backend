@@ -1,3 +1,7 @@
+function lowerCaseFirstLetter(input) {
+    return input[0].toLowerCase() + input.substr(1);
+}
+
 function sanitizeParameterValue(input) {
     if (input[0] === '"' && input.substr(-1) === '"') return input.substr(1, input.length - 2);
     return input;
@@ -18,9 +22,21 @@ function searchAfter(string, position, searchString) {
     return position + string.substring(position).search(searchString);
 }
 
+function isConstructor(reference) {
+    try {
+        new reference();
+    } catch (err) {
+        // verify err is the expected error and then
+        return false;
+    }
+    return true;
+}
+
 module.exports = {
     sanitizeParameterValue,
     replaceSubstr,
     leftTrim,
-    searchAfter
+    searchAfter,
+    isConstructor,
+    lowerCaseFirstLetter
 };

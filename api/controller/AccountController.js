@@ -5,13 +5,18 @@ class AccountController extends BaseController {
         super();
 
         BaseController.build(this, {
-            service: ['AccountService', 'UserService']
+            service: ['AccountService', 'UserService'],
+            model: ['AccountModel']
         });
     }
 
     index(req, res, next) {
-        res.status(200).json({message: 'success'});
-        return next();
+        return this.accountModel.query(req.query.from, req.query.amount)
+            .then((result) => {
+                res.status(200).json({ result });
+
+                return next();
+            });
     }
 }
 

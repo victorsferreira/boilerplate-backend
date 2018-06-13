@@ -1,22 +1,24 @@
-const Mongoose = require('mongoose');
-const Joigoose = require('joigoose')(mongoose);
-const Joi = require('joi');
-
 const BaseModel = require('../../libs/core/BaseModel');
+const Joi = BaseModel.Joi;
 
 const schema = Joi.object({
     username: Joi.string().alphanum().required(),
     email: Joi.string().required().regex(/.{1,}@.{1,}\..{1,}/),
     password: Joi.string().required()
-}, { collection: 'account' });
-
-const model = Mongoose.model('Account', new Mongoose.Schema(Joigoose.convert(schema)));
+});
 
 class AccountModel extends BaseModel {
-    constructor(){
-        this.schema = schema;
-        this.model = model;
+    constructor() {
+        super();
+        this.setModel('Account', schema);
+    }
+
+    query(_from, _amount) {
+        const from = parseInt(_from) || 0;
+        const amount = parseInt(_amount) || 10;
+
+        return this.find({}, from, amount);
     }
 }
 
-module.export = new AccountModel();
+module.exports = new AccountModel();

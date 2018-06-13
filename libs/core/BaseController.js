@@ -1,4 +1,5 @@
 const Base = require('./Base');
+
 class BaseController extends Base{
     constructor() {
         super();

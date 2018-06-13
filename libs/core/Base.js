@@ -1,3 +1,4 @@
+const { isConstructor, lowerCaseFirstLetter } = require('../helpers');
 const cwd = process.cwd();
 const ENTITY_CACHE = {};
 
@@ -7,22 +8,20 @@ class Base {
     }
 
     static build(context, dependencies) {
-        let dependencyNames, dependencyClass, dependency;
+        let dependencyNames, dependencyClass, dependency, reference;
         // for every dependency type (Service, Controller...)
-        for(let dependencyType in dependencies){
-            console.log('dependencyType', dependencyType);
+        for (let dependencyType in dependencies) {
             dependencyNames = dependencies[dependencyType];
             // for every dependency name (AccountService, AccountController...)
-            for(let dependencyName of dependencyNames){
-                console.log('dependencyName', dependencyName);
+            for (let dependencyName of dependencyNames) {
                 // get the class
-                dependencyClass = Base.getEntityClass(dependencyType, dependencyName);
-                // instantiate an object
-                dependency = new dependencyClass();
-                // call dependency build()
-                // if('build' in dependency) dependency.build();
+                reference = Base.getEntityClass(dependencyType, dependencyName);
+                if (isConstructor(reference)) {
+                    // instantiate an object
+                    dependency = new reference();
+                }else dependency = reference;
                 // set it to the context instance
-                context[dependencyName] = dependency;
+                context[lowerCaseFirstLetter(dependencyName)] = dependency;
             }
         }
     }
