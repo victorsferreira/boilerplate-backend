@@ -1,0 +1,12 @@
+{
+    "InternalError": {
+        "code": "InternalError",
+        "message": "The application encountered an unexpected error",
+        "status": 500
+    },
+    "NotFound": {
+        "code": "NotFound",
+        "message": "Resource not found",
+        "status": 404
+    }
+}

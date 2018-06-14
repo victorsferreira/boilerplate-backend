@@ -5,8 +5,8 @@ const Joigoose = require('joigoose')(Mongoose, null, { _id: false, timestamps: f
 const Base = require('./Base');
 
 class BaseModel extends Base {
-    constructor() {
-        super();
+    constructor(moduleName) {
+        super(moduleName);
 
         this.schema = null;
         this.model = null;

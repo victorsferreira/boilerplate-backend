@@ -1,10 +1,12 @@
+const Logger = require('../logger');
 const { isConstructor, lowerCaseFirstLetter } = require('../helpers');
 const cwd = process.cwd();
 const ENTITY_CACHE = {};
 
 class Base {
-    constructor() {
-
+    constructor(moduleName) {
+        this.moduleName = moduleName;
+        this.logger = new Logger(moduleName);
     }
 
     static build(context, dependencies) {

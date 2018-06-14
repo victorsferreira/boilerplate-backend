@@ -1,0 +1,21 @@
+{
+    "base": "api",
+    "apis": [
+        {
+            "base": "account",
+            "controller": "account",
+            "endpoints": [
+                {
+                    "method": "GET",
+                    "url": "index",
+                    "action": "index"
+                },
+                {
+                    "method": "POST",
+                    "url": "create",
+                    "action": "create"
+                }
+            ]
+        }
+    ]
+}

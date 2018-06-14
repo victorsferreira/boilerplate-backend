@@ -2,6 +2,10 @@ function lowerCaseFirstLetter(input) {
     return input[0].toLowerCase() + input.substr(1);
 }
 
+function upperCaseFirstLetter(input) {
+    return input[0].toUpperCase() + input.substr(1);
+}
+
 function sanitizeParameterValue(input) {
     if (input[0] === '"' && input.substr(-1) === '"') return input.substr(1, input.length - 2);
     return input;
@@ -38,5 +42,6 @@ module.exports = {
     leftTrim,
     searchAfter,
     isConstructor,
-    lowerCaseFirstLetter
+    lowerCaseFirstLetter,
+    upperCaseFirstLetter
 };

@@ -1,8 +1,8 @@
 const Base = require('./Base');
 
 class BaseService extends Base{
-    constructor() {
-        super();
+    constructor(moduleName) {
+        super(moduleName);
     }
 }
 

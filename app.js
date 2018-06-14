@@ -1,12 +1,12 @@
 const config = require('./config');
 const server = require('./api/server');
 const Database = require('./libs/db');
-const Log = require('./libs/log');
+const Logger = require('./libs/logger');
 
-const log = new Log('Application');
+const logger = new Logger('Application');
 
 process.on('uncaughtException', function (err) {
-    log.error(`Uncaught Exception!`, err);
+    logger.error(`Uncaught Exception!`, err);
     console.log(err)
 });
 

@@ -4,8 +4,8 @@ const pretty = require('pretty-format');
 
 const config = _CONFIG;
 
-class log {
-    constructor(moduleName) {
+class Log {
+    constructor() {
         const logConfig = {
             name: config.name,
             ...config.log,
@@ -29,28 +29,15 @@ class log {
             }]
         };
 
-        this.moduleName = moduleName;
-        this.logger = bunyan.createLogger(logConfig);
+        this.bunyan = bunyan.createLogger(logConfig);
     }
 
-    error(input, object = null) {
-        this.write(input, object, 'error', 'red');
-    }
-
-    debug(input, object = null) {
-        this.write(input, object, 'debug', 'gray');
-    }
-
-    info(input, object = null) {
-        this.write(input, object, 'info', 'blue');
-    }
-
-    write(input, object, level = 'info', color = 'gray') {
-        input = `INFO [${this.moduleName}]: ${input}`;
+    write(moduleName, input, object, level = 'info', color = 'gray') {
+        input = `INFO [${moduleName}]: ${input}`;
         object = object ? pretty(object, { maxDepth: 3 }) : '';
         console.log(chalk[color](input));
-        this.logger[level](input, object);
+        this.bunyan[level](input, object);
     }
 }
 
-module.exports = log;
+module.exports = new Log();
