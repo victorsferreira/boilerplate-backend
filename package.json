@@ -25,6 +25,7 @@
     "express": "^4.16.3",
     "joi": "^13.4.0",
     "joigoose": "^4.0.0",
+    "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.1.4",
     "node-fetch": "^2.1.2",
     "pretty-format": "^23.0.1",

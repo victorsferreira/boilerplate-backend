@@ -6,5 +6,10 @@
         "port": 27017,
         "name": "app-backend"
     },
-    "log": {}
+    "log": {},
+    "session":{
+        "algorithm": "RS256",
+        "ttl": "1h",
+        "secret": "yousages"
+    }
 }

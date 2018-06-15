@@ -8,5 +8,20 @@
         "code": "NotFound",
         "message": "Resource not found",
         "status": 404
+    },
+    "Forbidden": {
+        "code": "Forbidden",
+        "message": "You are not allowed to access this resource",
+        "status": 403
+    },
+    "Unauthorized": {
+        "code": "Unauthorized",
+        "message": "Authorization is required",
+        "status": 401
+    },
+    "BadRequest": {
+        "code": "BadRequest",
+        "message": "A bad request was provided",
+        "status": 400
     }
 }
