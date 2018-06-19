@@ -8,7 +8,7 @@ const BaseController = require('../libs/core/BaseController');
 const Routes = require('./routes');
 const Errors = require('./errors');
 
-const config = _CONFIG;
+const config = __CONFIG;
 
 class Server {
     constructor() {
@@ -74,13 +74,23 @@ class Server {
         });
     }
 
+    routes(){
+        const Session = require('../libs/session');
+        this.app.use(Session.start((req) => {
+            return req.headers['authorization']
+        }));
+
+        this.app.get('/api/account/protected', Session.protect, BaseController.action('AccountController', 'protected'));
+    }
+
     setup() {
         // Module Middlewares
         this.app.use(bodyParser.json());
-        this.app.use(cors());
+        this.app.use(cors('*'));
         // Custom Middlewares
         this.app.use(this.before.bind(this));
         this.app.use('/', this.resolveRoutes());
+        this.routes();
         this.app.use(this.errorHandler.bind(this));
         this.app.use(this.after.bind(this));
 

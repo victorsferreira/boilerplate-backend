@@ -1,4 +1,5 @@
 const BaseController = require('../../libs/core/BaseController');
+const { redis, Session } = __LIBS;
 
 class AccountController extends BaseController {
     constructor() {
@@ -10,13 +11,41 @@ class AccountController extends BaseController {
         });
     }
 
-    index(req, res, next) {
-        return this.accountModel.query(req.query.from, req.query.amount)
-            .then((result) => {
-                res.status(200).json({ result });
-
-                return next();
+    login(req, res, next) {
+        Session.init()
+            .then((token) => {
+                res.status(200).json(token)
             });
+    }
+
+    open(req, res, next) {
+        res.status(200).json({
+            now: Date.now()
+        });
+    }
+
+    protected(req, res, next) {
+        res.status(200).json({
+            now: Date.now()
+        });
+    }
+
+    index(req, res, next) {
+        const result = {};
+        redis.set('somekey', { key: 'value' })
+            .then(() => {
+                return redis.get('somekey');
+            })
+            .then((data) => {
+                result.data = data;
+                return redis.del('somekey');
+            })
+            .then(() => {
+                res.status(200).json(result.data);
+            })
+            .catch((error) => {
+                this.logger.error(error);
+            })
     }
 }
 

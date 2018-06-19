@@ -2,7 +2,7 @@ const bunyan = require('bunyan');
 const chalk = require('chalk');
 const pretty = require('pretty-format');
 
-const config = _CONFIG;
+const config = __CONFIG;
 
 class Log {
     constructor() {

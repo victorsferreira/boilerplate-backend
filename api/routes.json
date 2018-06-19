@@ -7,13 +7,18 @@
             "endpoints": [
                 {
                     "method": "GET",
-                    "url": "index",
-                    "action": "index"
+                    "url": "open",
+                    "action": "open"
+                },
+                {
+                    "method": "GET",
+                    "url": "_protected",
+                    "action": "protected"
                 },
                 {
                     "method": "POST",
-                    "url": "create",
-                    "action": "create"
+                    "url": "login",
+                    "action": "login"
                 }
             ]
         }

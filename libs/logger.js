@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const pretty = require('pretty-format');
 const log = require('./core/log');
 
-const config = _CONFIG;
+const config = __CONFIG;
 
 class Logger {
     constructor(moduleName) {

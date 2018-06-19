@@ -26,6 +26,18 @@ function searchAfter(string, position, searchString) {
     return position + string.substring(position).search(searchString);
 }
 
+function isEmpty(obj) {
+    if (obj == null) return true;
+    if (obj.length > 0)    return false;
+    if (obj.length === 0)  return true;
+    if (typeof obj !== "object") return true;
+    for (var key in obj) {
+        if (hasOwnProperty.call(obj, key)) return false;
+    }
+
+    return true;
+}
+
 function isConstructor(reference) {
     try {
         new reference();
@@ -37,6 +49,7 @@ function isConstructor(reference) {
 }
 
 module.exports = {
+    isEmpty,
     sanitizeParameterValue,
     replaceSubstr,
     leftTrim,

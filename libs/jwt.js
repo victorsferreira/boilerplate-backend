@@ -1,14 +1,20 @@
 const jwt = require('jsonwebtoken');
-const config = _CONFIG;
+const fs = require('fs');
+const { session: config } = __CONFIG;
 
-const algorithm = config.session.algorithm || 'RS256';
-const ttl = config.session.ttl || '1h';
-const secret = config.session.secret || Date.now();
+const algorithm = config.algorithm || 'RS256';
+const ttl = config.ttl || '1h';
+const secret = config.secret;
+const privateKey = config.privateKey ? fs.readFileSync(config.privateKey) : null;
 
 class JWT {
     static create(data) {
-        return new Promise((reject, resolve) => {
-            jwt.sign(data, this.secret, { expiresIn: this.ttl, algorithm: this.algorithm }, (err, token) => {
+        return new Promise((resolve, reject) => {
+            const secretOrPrivateKey = privateKey || secret;
+            const options = { expiresIn: ttl };
+            if (privateKey) options.algorithm = algorithm;
+            
+            jwt.sign(data, secretOrPrivateKey, options, (err, token) => {
                 if (err) reject(err);
                 else resolve(token);
             });
@@ -16,7 +22,7 @@ class JWT {
     }
 
     static validate(token) {
-        return new Promise((reject, resolve) => {
+        return new Promise((resolve, reject) => {
             jwt.verify(token, this.secret, (err, data) => {
                 if (err) reject(err);
                 else resolve(data);

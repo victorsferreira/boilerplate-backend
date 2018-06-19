@@ -7,9 +7,13 @@
         "name": "app-backend"
     },
     "log": {},
-    "session":{
+    "session": {
         "algorithm": "RS256",
         "ttl": "1h",
         "secret": "yousages"
+    },
+    "redis": {
+        "host": "127.0.0.1",
+        "port": "6379"
     }
 }
