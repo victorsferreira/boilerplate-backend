@@ -6,11 +6,11 @@ const algorithm = config.algorithm || 'RS256';
 const ttl = config.ttl || '1h';
 const secret = config.secret;
 const privateKey = config.privateKey ? fs.readFileSync(config.privateKey) : null;
+const secretOrPrivateKey = privateKey || secret;
 
 class JWT {
     static create(data) {
         return new Promise((resolve, reject) => {
-            const secretOrPrivateKey = privateKey || secret;
             const options = { expiresIn: ttl };
             if (privateKey) options.algorithm = algorithm;
             
@@ -23,7 +23,7 @@ class JWT {
 
     static validate(token) {
         return new Promise((resolve, reject) => {
-            jwt.verify(token, this.secret, (err, data) => {
+            jwt.verify(token, secretOrPrivateKey, (err, data) => {
                 if (err) reject(err);
                 else resolve(data);
             });

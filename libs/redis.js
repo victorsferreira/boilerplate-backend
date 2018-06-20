@@ -6,7 +6,7 @@ const config = __CONFIG;
 class Redis {
     constructor() {
         this.logger = new Logger('Redis');
-        this.client = redis.createClient();
+        this.client = null;
         this.config = config.redis;
         this.defaultTtl = 60 * 60; //1h
     }

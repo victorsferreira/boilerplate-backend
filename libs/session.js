@@ -40,15 +40,16 @@ class Session {
 
     static protect(req, res, next) {
         if ('authorization' in req.headers) {
-            const authorization = req.headers['Authorization'].split(' ');
+            const authorization = req.headers['authorization'].split(' ');
             const token = authorization[1];
 
-            if (authorization[0].toLowerCase() === 'Bearer' && token) {
+            if (authorization[0].toLowerCase() === 'bearer' && token) {
                 JWT.validate(token)
                     .then((data) => {
+                        const session = new Session(data.sessionId);
                         return session.load()
                             .then(() => {
-                                if (!session.isInactive()) {
+                                if (session.isActive()) {
                                     next();
                                 } else {
                                     // Session is anactive

@@ -16,8 +16,8 @@ process.on('uncaughtException', function (err) {
 server.setup();
 server.connect()
     .then((app) => {
-        return database.connect();
+        return redis.connect();
     })
     .then(() =>{
-        return redis.connect();
+        return database.connect();
     });
