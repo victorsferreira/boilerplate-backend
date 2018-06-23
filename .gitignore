@@ -3,3 +3,4 @@ coverage
 log/*.log
 .nyc_output
 package-lock.json
+data
