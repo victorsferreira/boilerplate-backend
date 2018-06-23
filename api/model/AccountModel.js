@@ -4,7 +4,11 @@ const Joi = BaseModel.Joi;
 const schema = Joi.object({
     username: Joi.string().alphanum().required(),
     email: Joi.string().required().regex(/.{1,}@.{1,}\..{1,}/),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    resetPasswordToken: Joi.string().default(""),
+    sellerInfo: Joi.object().meta({ default: {} }),
+    userInfo: Joi.object().meta({ default: {} }),
+    partnerInfo: Joi.object().meta({ default: {} })
 });
 
 class AccountModel extends BaseModel {

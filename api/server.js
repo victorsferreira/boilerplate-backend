@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const uuid = require('uuid/v4');
 const Logger = require('../libs/logger');
+const Middleware = require('../libs/middleware');
 const { upperCaseFirstLetter } = require('../libs/helpers');
 const BaseController = require('../libs/core/BaseController');
 const Routes = require('./routes');
@@ -24,6 +25,10 @@ class Server {
 
             case 'NotFound': {
                 return Errors.NotFound;
+            }
+
+            case 'Unauthorized': {
+                return Errors.Unauthorized;
             }
 
             default: {
@@ -66,21 +71,12 @@ class Server {
 
     errorHandler(err, req, res, next) {
         this.logger.error(`Error caught for ID [${req.id}]`, err);
-        const errorObject = this.resolveErrorCode(err.errorCode);
+        const errorObject = this.resolveErrorCode(err.code);
         const { message, code } = errorObject;
 
         res.status(errorObject.status).json({
             message, code
         });
-    }
-
-    routes(){
-        const Session = require('../libs/session');
-        this.app.use(Session.start((req) => {
-            return req.headers['authorization']
-        }));
-
-        this.app.get('/api/account/protected', Session.protect, BaseController.action('AccountController', 'protected'));
     }
 
     setup() {
@@ -90,7 +86,6 @@ class Server {
         // Custom Middlewares
         this.app.use(this.before.bind(this));
         this.app.use('/', this.resolveRoutes());
-        this.routes();
         this.app.use(this.errorHandler.bind(this));
         this.app.use(this.after.bind(this));
 
@@ -99,14 +94,19 @@ class Server {
 
     resolveRoutes() {
         const router = express.Router();
-        let url, method, controller;
+        let url, method, controller, middlewares;
         Routes.apis.forEach((api) => {
             api.endpoints.forEach((endpoint) => {
                 method = endpoint.method.toLowerCase();
                 url = '/' + [Routes.base, api.base, endpoint.url].join('/').replace(/\/\//g, '/');
                 controller = api.controller.split('-').map((word) => { return upperCaseFirstLetter(word) }).join('');
                 if (controller.search('Controller') === -1) controller = controller + 'Controller';
-                router[method](url, BaseController.action(controller, endpoint.action));
+
+                middlewares = (endpoint.middlewares || []).map((middlewareName) => {
+                    return Middleware[middlewareName];
+                });
+
+                router[method](url, middlewares, BaseController.action(controller, endpoint.action));
                 this.logger.debug(`A new route has been defined as [${method.toUpperCase()}] [${url}] [${controller}]#[${endpoint.action}]`);
             });
         });

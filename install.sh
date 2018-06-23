@@ -14,4 +14,4 @@ sudo docker build -t app:boilerplate .
 sudo docker stop boilerplate
 sudo docker rm boilerplate
 sudo docker run --name boilerplate -p 8090:8090 app:boilerplate
-npm install
+#npm install

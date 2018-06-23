@@ -18,6 +18,13 @@ class AccountController extends BaseController {
             });
     }
 
+    logout(req, res, next) {
+        Session.init()
+            .then((token) => {
+                res.status(200).json(token)
+            });
+    }
+
     open(req, res, next) {
         res.status(200).json({
             now: Date.now()
