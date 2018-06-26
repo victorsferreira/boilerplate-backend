@@ -5,10 +5,11 @@ const schema = Joi.object({
     username: Joi.string().alphanum().required(),
     email: Joi.string().required().regex(/.{1,}@.{1,}\..{1,}/),
     password: Joi.string().required(),
-    resetPasswordToken: Joi.string().default(""),
-    sellerInfo: Joi.object().meta({ default: {} }),
-    userInfo: Joi.object().meta({ default: {} }),
-    partnerInfo: Joi.object().meta({ default: {} })
+    resetPasswordToken: Joi.string().allow(null).meta({ default: null }),
+    resetPasswordTokenExpire: Joi.date().allow(null).meta({ default: null }),
+    sellerInfo: Joi.object().default({}).meta({ default: {} }),
+    userInfo: Joi.object().default({}).meta({ default: {} }),
+    partnerInfo: Joi.object().default({}).meta({ default: {} })
 });
 
 class AccountModel extends BaseModel {
@@ -17,11 +18,17 @@ class AccountModel extends BaseModel {
         this.setModel('Account', schema);
     }
 
+    create(username, email, password) {
+        return this.model.create({
+            username, email, password
+        });
+    }
+
     query(_from, _amount) {
         const from = parseInt(_from) || 0;
         const amount = parseInt(_amount) || 10;
 
-        return this.find({}, from, amount);
+        return this.model.find({}, from, amount);
     }
 }
 

@@ -1,3 +1,6 @@
+var crypto = require('crypto');
+const config = __CONFIG;
+
 function lowerCaseFirstLetter(input) {
     return input[0].toLowerCase() + input.substr(1);
 }
@@ -28,14 +31,31 @@ function searchAfter(string, position, searchString) {
 
 function isEmpty(obj) {
     if (obj == null) return true;
-    if (obj.length > 0)    return false;
-    if (obj.length === 0)  return true;
+    if (obj.length > 0) return false;
+    if (obj.length === 0) return true;
     if (typeof obj !== "object") return true;
     for (var key in obj) {
         if (hasOwnProperty.call(obj, key)) return false;
     }
 
     return true;
+}
+
+function hashPassword(password) {
+    return hash = crypto.createHmac('sha512', config.passwordSalt).update(password).digest('hex');
+}
+
+function md5(input) {
+    return crypto.createHash('md5').update(input).digest('hex');
+}
+
+function generateToken() {
+    const input = Date.now().toString() + randomNumber().toString();
+    return md5(input);
+}
+
+function randomNumber(min = 0, max = 100) {
+    return Math.random() * (max - min) + min;
 }
 
 function isConstructor(reference) {
@@ -56,5 +76,9 @@ module.exports = {
     searchAfter,
     isConstructor,
     lowerCaseFirstLetter,
-    upperCaseFirstLetter
+    upperCaseFirstLetter,
+    hashPassword,
+    md5,
+    generateToken,
+    randomNumber
 };
