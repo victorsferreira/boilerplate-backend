@@ -16,7 +16,7 @@ class Database{
                 this.logger.debug(`Connection with MongoDB established at [${this.config.host}] on port [${this.config.port}]`);
                 return result;
             }, (err) => {
-                this.logger.error('Something went wrong when trying to connect with MongoDB established', err);
+                this.logger.error('Something went wrong when trying to connect with MongoDB', { ...this.config });
                 throw err;
             });
     }

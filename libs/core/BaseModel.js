@@ -9,12 +9,12 @@ class BaseModel extends Base {
         super(moduleName);
 
         this.schema = null;
-        this.model = null;
+        this.db = null;
     }
 
     setModel(modelName, schema) {
         this.schema = schema;
-        this.model = Mongoose.model(modelName, new Mongoose.Schema(Joigoose.convert(schema)));
+        this.db = Mongoose.model(modelName, new Mongoose.Schema(Joigoose.convert(schema)));
     }
 
     updateField(criteria, field, value) {
@@ -22,26 +22,42 @@ class BaseModel extends Base {
         const data = {};
         data[field] = value;
 
-        return this.model.update(criteria, { $set: data });
+        return this.db.update(criteria, { $set: data });
     }
 
     updateFields(criteria, data) {
         if (typeof (criteria) !== 'object') criteria = { _id: criteria };
-        return this.model.update(criteria, { $set: data });
+        return this.db.update(criteria, { $set: data });
+    }
+
+    create(data) {
+        return this.db.create(data);
+    }
+
+    edit(id, data) {
+        return this.db.update({ _id: id }, { $set: data });
+    }
+
+    permanentDelete(id) {
+        return this.db.deleteOne({ _id: id });
+    }
+
+    softDelete(id) {
+        return this.db.update({ _id: id }, { $set: { deleted: true } });
     }
 
     existsBy(field, value) {
         const criteria = {};
         criteria[field] = value;
 
-        return this.model.findOne(criteria)
+        return this.db.findOne(criteria)
             .then((result) => {
                 return !!result;
             });
     }
 
-    find(criteria, from, amount) {
-        return this.model.find({}).skip(from).limit(amount);
+    find(criteria, from = 0, amount = 10) {
+        return this.db.find({}).skip(from).limit(amount);
     }
 }
 

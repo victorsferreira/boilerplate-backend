@@ -9,12 +9,13 @@ const config = __CONFIG;
 const logger = new Logger('Session');
 
 class Session {
-    constructor(id) {
+    constructor(id, token) {
         this.logger = new Logger('Session');
         this.config = config.session;
         this.defaultTtl = 60 * 60; //
         this.redis = redis;
         this.id = id;
+        this.token = token;
         this.data = {};
 
         this.empty = true;
@@ -24,9 +25,8 @@ class Session {
         this.setInactive();
     }
 
-    static init() {
+    static init(data = {}) {
         const sessionId = uuid();
-        const data = {};
 
         return redis.set(Session.getRedisKey(sessionId), data)
             .then((result) => {
@@ -46,10 +46,11 @@ class Session {
             if (authorization[0].toLowerCase() === 'bearer' && token) {
                 JWT.validate(token)
                     .then((data) => {
-                        const session = new Session(data.sessionId);
+                        const session = new Session(data.sessionId, token);
                         return session.load()
                             .then(() => {
                                 if (session.isActive()) {
+                                    req.session = session;
                                     next();
                                 } else {
                                     // Session is anactive
@@ -101,6 +102,14 @@ class Session {
 
     update() {
         return this.redis.set(Session.getRedisKey(this.id), this.data);
+    }
+
+    destroy() {
+        return this.redis.del(Session.getRedisKey(this.id))
+            .then(() => {
+                this.setInactive();
+                this.setEmpty();
+            })
     }
 
     load() {

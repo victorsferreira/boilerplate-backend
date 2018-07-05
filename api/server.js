@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 const uuid = require('uuid/v4');
 const Logger = require('../libs/logger');
 const Middleware = require('../libs/middleware');
@@ -37,34 +38,15 @@ class Server {
         }
     }
 
-    resolveRequestData(req) {
-        return {
-            method: req.method || '',
-            url: req.url || '',
-            params: req.params || {},
-            query: req.query || {},
-            body: req.body || {},
-            headers: req.headers || {}
-        };
-    }
-
-    resolveResponseData(res) {
-        return {
-            body: res._body || {},
-            headers: res._headers || {},
-            status: res.statusCode || null
-        };
-    }
-
     before(req, res, next) {
         req.id = uuid();
-        this.logger.debug(`Request has been received with ID [${req.id}]`, this.resolveRequestData(req));
+        this.logger.debug(`Request has been received with ID [${req.id}]`, BaseController.resolveRequestData(req));
 
         next();
     }
 
     after(req, res, next) {
-        this.logger.debug(`Response has been sent for ID [${req.id}]`, this.resolveResponseData(res));
+        this.logger.debug(`Response has been sent for ID [${req.id}]`, BaseController.resolveResponseData(res));
 
         next();
     }
@@ -79,12 +61,20 @@ class Server {
         });
     }
 
+    healthcheck(req, res, next) {
+        res.status(200).send('The application is up and running');
+        next();
+    }
+
     setup() {
         // Module Middlewares
         this.app.use(bodyParser.json());
-        this.app.use(cors('*'));
+        this.app.use(bodyParser.urlencoded({ extended: true }));
+        this.app.use(cors(config.cors));
+        this.app.use(fileUpload());
         // Custom Middlewares
         this.app.use(this.before.bind(this));
+        this.app.get('/healthcheck', this.healthcheck.bind(this));
         this.app.use('/', this.resolveRoutes());
         this.app.use(this.errorHandler.bind(this));
         this.app.use(this.after.bind(this));
@@ -105,6 +95,13 @@ class Server {
                 middlewares = (endpoint.middlewares || []).map((middlewareName) => {
                     return Middleware[middlewareName];
                 });
+
+
+                // const multer = require('multer');
+                // const multerFormData = multer({ dest: 'statics/' });
+                // // return multerFormData.fields([]);
+
+                // middlewares.push(multerFormData.fields([]));
 
                 router[method](url, middlewares, BaseController.action(controller, endpoint.action));
                 this.logger.debug(`A new route has been defined as [${method.toUpperCase()}] [${url}] [${controller}]#[${endpoint.action}]`);
