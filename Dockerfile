@@ -4,5 +4,5 @@ RUN rm -rf /app/*
 COPY package.json /app
 RUN npm install
 COPY . /app
-CMD node app.js
+CMD NODE_ENV=production node app.js
 EXPOSE 8090
