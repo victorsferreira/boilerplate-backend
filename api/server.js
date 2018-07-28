@@ -86,23 +86,42 @@ class Server {
         const router = express.Router();
         let url, method, controller, middlewares;
         Routes.apis.forEach((api) => {
-            api.endpoints.forEach((endpoint) => {
+            let endpoints = api.endpoints || [];
+
+            if (api.crud) {
+                const crudEndpoints = [];
+
+                crudOperations.forEach((crudOperation) => {
+                    // Skip actions
+                    if (api.crud.exclude && api.crud.exclude.includes(crudOperation.action)) return false;
+
+                    const operation = { ...crudOperation };
+                    operation.middlewares = api.crud.middlewares;
+                    if(api.crud.alias && operation.action in api.crud.alias){
+                        // Rename action
+                        operation.action = api.crud.alias[operation.action];
+                    }
+
+                    crudEndpoints.push(operation);
+                });
+
+                endpoints = endpoints.concat(crudEndpoints);
+            }
+            
+            endpoints.forEach((endpoint) => {
                 method = endpoint.method.toLowerCase();
                 url = '/' + [Routes.base, api.base, endpoint.url].join('/').replace(/\/\//g, '/');
                 controller = api.controller.split('-').map((word) => { return upperCaseFirstLetter(word) }).join('');
                 if (controller.search('Controller') === -1) controller = controller + 'Controller';
+                
+                middlewares = (endpoint.middlewares || []).map((middleware) => {
+                    const middlewareParts = middleware.split(':');
+                    const middlewareName = middlewareParts[0];
+                    const middlewareArguments = middlewareParts[1] ? middlewareParts[1].split(',') : [];
 
-                middlewares = (endpoint.middlewares || []).map((middlewareName) => {
-                    return Middleware[middlewareName];
+                    return Middleware[middlewareName].bind(null, middlewareArguments);
                 });
-
-
-                // const multer = require('multer');
-                // const multerFormData = multer({ dest: 'statics/' });
-                // // return multerFormData.fields([]);
-
-                // middlewares.push(multerFormData.fields([]));
-
+                
                 router[method](url, middlewares, BaseController.action(controller, endpoint.action));
                 this.logger.debug(`A new route has been defined as [${method.toUpperCase()}] [${url}] [${controller}]#[${endpoint.action}]`);
             });
