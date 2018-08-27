@@ -1,4 +1,4 @@
-var crypto = require('crypto');
+const crypto = require('crypto');
 const config = __CONFIG;
 
 function getValueByFieldName(object, fieldName) {
