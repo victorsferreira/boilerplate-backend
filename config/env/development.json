@@ -1,19 +1,79 @@
 {
     "name": "app-backend",
     "port": 8090,
+    "passwordSalt": "1234567890",
+    "secret": "boilerplate-app",
+    "client": {
+        "web": {
+            "host": "http://localhost:3000/#/"
+        }
+    },
+    "cors": {
+        "preflightContinue": true,
+        "allowedHeaders": [
+            "x-access-token",
+            "content-type",
+            "authorization"
+        ],
+        "exposedHeaders": [
+            "x-access-token"
+        ],
+        "methods": [
+            "GET",
+            "HEAD",
+            "PUT",
+            "PATCH",
+            "POST",
+            "DELETE"
+        ]
+    },
     "db": {
         "host": "localhost",
         "port": 27017,
-        "name": "app-backend"
+        "name": "boilerplate-app",
+        "options": {
+            "autoReconnect": true,
+            "reconnectTries": 10000,
+            "reconnectInterval": 1000
+        }
     },
     "log": {},
     "session": {
         "algorithm": "RS256",
-        "ttl": "1h",
-        "secret": "yousages"
+        "ttl": "1000h",
+        "secret": "boilerplate-app"
     },
     "redis": {
         "host": "localhost",
         "port": "6379"
+    },
+    "email": {
+        "host": "smtp.gmail.com",
+        "port": 465,
+        "secure": true,
+        "auth": {
+            "user": "boilerplate@app.com",
+            "pass": "boilerplate-app"
+        },
+        "defaultSender": "\"boilerplate-app\" <boilerplate@app.com>"
+    },
+    "uploads": {
+        "directory": "statics/uploads",
+        "s3": {
+            "client": {
+                "maxAsyncS3": 20,
+                "s3RetryCount": 3,
+                "s3RetryDelay": 1000,
+                "multipartUploadThreshold": 20971520,
+                "multipartUploadSize": 15728640
+            },
+            "buckets": {
+                "default": ""
+            },
+            "keys": {
+                "accessKeyId": "accessKeyId",
+                "secretAccessKey": "secretAccessKey"
+            }
+        }
     }
 }

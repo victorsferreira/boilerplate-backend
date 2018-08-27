@@ -19,5 +19,5 @@ server.connect()
         return redis.connect();
     })
     .then(() =>{
-        return database.connect();
+        return database.connectWithRetry();
     });

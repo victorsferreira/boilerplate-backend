@@ -12,6 +12,16 @@ const Errors = require('./errors');
 
 const config = __CONFIG;
 
+const resourcesOperations = [
+    { method: 'GET', url: ':id', action: 'show' },
+    { method: 'GET', url: '', action: 'list' },
+    { method: 'DELETE', url: ':id', action: 'delete' },
+    { method: 'PUT', url: ':id', action: 'edit' },
+    { method: 'POST', url: '', action: 'create' },
+    { method: 'GET', url: ':id/profile', action: 'profile' },
+    { method: 'GET', url: '/all', action: 'all' }
+];
+
 class Server {
     constructor() {
         this.logger = new Logger('Server');
@@ -40,6 +50,8 @@ class Server {
 
     before(req, res, next) {
         req.id = uuid();
+        if (!req.files) req.files = {};
+        if (!req.args) req.args = {};
         this.logger.debug(`Request has been received with ID [${req.id}]`, BaseController.resolveRequestData(req));
 
         next();
@@ -86,22 +98,41 @@ class Server {
         const router = express.Router();
         let url, method, controller, middlewares;
         Routes.apis.forEach((api) => {
-            api.endpoints.forEach((endpoint) => {
+            let endpoints = api.endpoints || [];
+
+            if (api.resources) {
+                const resourcesEndpoints = [];
+
+                resourcesOperations.forEach((resourcesOperation) => {
+                    // Skip actions
+                    if (api.resources.exclude && api.resources.exclude.includes(resourcesOperation.action)) return false;
+
+                    const operation = { ...resourcesOperation };
+                    operation.middlewares = api.resources.middlewares;
+                    if (api.resources.alias && operation.action in api.resources.alias) {
+                        // Rename action
+                        operation.action = api.resources.alias[operation.action];
+                    }
+
+                    resourcesEndpoints.push(operation);
+                });
+
+                endpoints = endpoints.concat(resourcesEndpoints);
+            }
+
+            endpoints.forEach((endpoint) => {
                 method = endpoint.method.toLowerCase();
                 url = '/' + [Routes.base, api.base, endpoint.url].join('/').replace(/\/\//g, '/');
                 controller = api.controller.split('-').map((word) => { return upperCaseFirstLetter(word) }).join('');
                 if (controller.search('Controller') === -1) controller = controller + 'Controller';
 
-                middlewares = (endpoint.middlewares || []).map((middlewareName) => {
-                    return Middleware[middlewareName];
+                middlewares = (endpoint.middlewares || []).map((middleware) => {
+                    const middlewareParts = middleware.split(':');
+                    const middlewareName = middlewareParts.shift();
+                    const middlewareArguments = middlewareParts.length ? JSON.parse(middlewareParts.join(':')) : {};
+
+                    return Middleware[middlewareName].bind(null, middlewareArguments);
                 });
-
-
-                // const multer = require('multer');
-                // const multerFormData = multer({ dest: 'statics/' });
-                // // return multerFormData.fields([]);
-
-                // middlewares.push(multerFormData.fields([]));
 
                 router[method](url, middlewares, BaseController.action(controller, endpoint.action));
                 this.logger.debug(`A new route has been defined as [${method.toUpperCase()}] [${url}] [${controller}]#[${endpoint.action}]`);

@@ -9,8 +9,8 @@ class Base {
         this.logger = new Logger(moduleName);
     }
 
-    static build(context, dependencies) {
-        let dependencyNames, dependencyClass, dependency, reference;
+    static build(context, dependencies, alias = {}) {
+        let dependencyNames, propertyName, dependency, reference;
         // for every dependency type (Service, Controller...)
         for (let dependencyType in dependencies) {
             dependencyNames = dependencies[dependencyType];
@@ -23,7 +23,9 @@ class Base {
                     dependency = new reference();
                 }else dependency = reference;
                 // set it to the context instance
-                context[lowerCaseFirstLetter(dependencyName)] = dependency;
+                propertyName = lowerCaseFirstLetter(dependencyName);
+                if(propertyName in alias) propertyName = alias[propertyName];
+                context[propertyName] = dependency;
             }
         }
     }

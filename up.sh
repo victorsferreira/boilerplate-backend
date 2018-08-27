@@ -1,2 +1,3 @@
-sudo docker-compose build --no-cache app
-sudo docker-compose up --force-recreate
+sudo docker-compose down -v --rmi all
+sudo docker-compose up --force-recreate --build -d
+docker rmi $(docker images --filter “dangling=true” -q --no-trunc)

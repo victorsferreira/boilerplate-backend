@@ -1,12 +1,53 @@
 var crypto = require('crypto');
 const config = __CONFIG;
 
+function getValueByFieldName(object, fieldName) {
+    const fieldParts = fieldName.split('.');
+    let value = null;
+
+    for (let field of fieldParts) {
+        if (field in object) {
+            value = object = object[field];
+        } else return null;
+    }
+
+    return value;
+}
+
+function setValueByFieldName(object, fieldName, value) {
+    const fieldParts = fieldName.split('.');
+    let current = object;
+    let field = '';
+
+    while (fieldParts.length > 1) {
+        field = fieldParts.shift();
+        if(!(field in current)) current[field] = {};
+        current = current[field];
+    }
+
+    field = fieldParts.shift();
+    current[field] = value;
+    
+    return object;
+}
+
+function getInnerMostFieldName(field) {
+    return field.split('.').pop();
+}
+
 function lowerCaseFirstLetter(input) {
     return input[0].toLowerCase() + input.substr(1);
 }
 
 function upperCaseFirstLetter(input) {
     return input[0].toUpperCase() + input.substr(1);
+}
+
+function lispCaseToCamelCase(input, upperCaseFirstLetter) {
+    return input.split('-').map((inputWord, i) => {
+        if (!upperCaseFirstLetter && i === 0) return inputWord;
+        return inputWord.charAt(0).toUpperCase() + inputWord.substr(1);
+    }).join('');
 }
 
 function sanitizeParameterValue(input) {
@@ -36,7 +77,7 @@ function isEmpty(obj) {
     if (typeof obj !== "object") return true;
     for (var key in obj) {
         if (hasOwnProperty.call(obj, key)) return false;
-    }
+    } objectFields
 
     return true;
 }
@@ -58,6 +99,25 @@ function randomNumber(min = 0, max = 100) {
     return Math.random() * (max - min) + min;
 }
 
+function objectFields(object, allowedFields, fieldAlias = {}, forceCreation = false) {
+    const newObject = {};
+
+    let alias, value;
+    allowedFields.forEach((field) => {
+        alias = fieldAlias[field] ? fieldAlias[field] : field;
+
+        if (field in object) {
+            value = object[field];
+        } else if (forceCreation) {
+            value = null;
+        } else return false;
+
+        newObject[alias] = value;
+    });
+
+    return newObject;
+}
+
 function isConstructor(reference) {
     try {
         new reference();
@@ -69,6 +129,8 @@ function isConstructor(reference) {
 }
 
 module.exports = {
+    lispCaseToCamelCase,
+    objectFields,
     isEmpty,
     sanitizeParameterValue,
     replaceSubstr,
@@ -80,5 +142,8 @@ module.exports = {
     hashPassword,
     md5,
     generateToken,
-    randomNumber
+    randomNumber,
+    getValueByFieldName,
+    setValueByFieldName,
+    getInnerMostFieldName
 };

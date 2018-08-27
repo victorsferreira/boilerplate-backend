@@ -38,7 +38,7 @@ class Session {
             });
     }
 
-    static protect(req, res, next) {
+    static protect(allowedTypes, req, res, next) {
         if ('authorization' in req.headers) {
             const authorization = req.headers['authorization'].split(' ');
             const token = authorization[1];
@@ -50,11 +50,18 @@ class Session {
                         return session.load()
                             .then(() => {
                                 if (session.isActive()) {
-                                    req.session = session;
-                                    next();
+                                    if (allowedTypes && !allowedTypes.includes('any') && !allowedTypes.includes(session.data.type)) {
+                                        // Session is not in the types list
+                                        const error = new Error(`Session is not in the types list`);
+                                        error.code = 'Unauthorized';
+                                        next(error);
+                                    } else {
+                                        req.session = session;
+                                        next();
+                                    }
                                 } else {
                                     // Session is anactive
-                                    const error = new Error(err);
+                                    const error = new Error(`Session is inactive`);
                                     error.code = 'Unauthorized';
                                     next(error);
                                 }
@@ -74,13 +81,13 @@ class Session {
                     });
             } else {
                 // Didn't send a well-formated bearer
-                const error = new Error(err);
+                const error = new Error(`Didn't send a well-formated bearer`);
                 error.code = 'BadRequest';
                 next(error);
             }
         } else {
             // There is no 'Authorization' header
-            const error = new Error(err);
+            const error = new Error(`There is no 'Authorization' header`);
             error.code = 'Unauthorized';
             next(error);
         }

@@ -16,7 +16,7 @@ class S3 {
 
     getUrl(key, expires, bucket) {
         if (!bucket) bucket = this.config.buckets.default;
-        if (!expires) bucket = this.config.expires;
+        if (!expires) expires = this.config.expires;
 
         const url = this.client.getSignedUrl('getObject', {
             Bucket: bucket,
@@ -35,6 +35,25 @@ class S3 {
                 } else {
                     const file = new Buffer(data, 'binary');
                     resolve(file);
+                }
+            });
+        });
+    }
+
+    delete(key, bucket) {
+        if (!bucket) bucket = this.config.buckets.default;
+
+        const params = {
+            Bucket: bucket,
+            Key: key
+        };
+
+        return new Promise((resolve, reject) => {
+            this.client.deleteObject(params, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
                 }
             });
         });
